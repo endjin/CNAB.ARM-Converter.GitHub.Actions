@@ -29,8 +29,8 @@ export async function run() {
     }
 
     let toolPath = await tc.downloadTool(toolUrl);
-
-    await exec.exec(toolPath, ['-b', bundlePath, '-f', outputPath, '-i'])
+    await exec.exec("chmod", ["+x", toolPath]);
+    await exec.exec(toolPath, ['-b', bundlePath, '-f', outputPath, '-i']);
 
   } catch (error) {
     throw error;

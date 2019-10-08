@@ -1,0 +1,18 @@
+name: 'Run CNAB to ARM tool'
+description: 'Runs tool to convert CNAB bundle to ARM template for ACI driver deployment'
+inputs:
+  tool_version:
+    description: 'Version of tool to install'
+    required: false
+    default: '0.1.0'
+  bundle_path:
+    description: 'Path to the CNAB to convert'
+    required: false
+    default: 'bundle.json'
+  output_path:
+    description: 'Path for the ARM template output'
+    required: false
+    default: 'azuredeploy.json'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

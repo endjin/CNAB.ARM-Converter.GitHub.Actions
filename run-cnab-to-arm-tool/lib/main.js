@@ -20,12 +20,16 @@ const core = __importStar(require("@actions/core"));
 const tc = __importStar(require("@actions/tool-cache"));
 const exec = __importStar(require("@actions/exec"));
 const process_1 = require("process");
+const path = __importStar(require("path"));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let toolVersion = core.getInput("tool_version");
             let bundlePath = core.getInput("bundle_path");
             let outputPath = core.getInput("output_path");
+            let workspacePath = process.env.GITHUB_WORKSPACE;
+            bundlePath = path.join(workspacePath, bundlePath);
+            outputPath = path.join(workspacePath, outputPath);
             let os = process_1.env.RUNNER_OS;
             let toolUrl;
             switch (os) {

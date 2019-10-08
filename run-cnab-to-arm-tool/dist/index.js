@@ -1238,12 +1238,16 @@ const core = __importStar(__webpack_require__(470));
 const tc = __importStar(__webpack_require__(533));
 const exec = __importStar(__webpack_require__(986));
 const process_1 = __webpack_require__(765);
+const path = __importStar(__webpack_require__(622));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let toolVersion = core.getInput("tool_version");
             let bundlePath = core.getInput("bundle_path");
             let outputPath = core.getInput("output_path");
+            let workspacePath = process.env.GITHUB_WORKSPACE;
+            bundlePath = path.join(workspacePath, bundlePath);
+            outputPath = path.join(workspacePath, outputPath);
             let os = process_1.env.RUNNER_OS;
             let toolUrl;
             switch (os) {

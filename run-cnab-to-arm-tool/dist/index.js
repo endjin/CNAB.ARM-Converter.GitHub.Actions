@@ -1265,7 +1265,7 @@ function run() {
             }
             let toolPath = yield tc.downloadTool(toolUrl);
             yield exec.exec("chmod", ["+x", toolPath]);
-            yield exec.exec(toolPath, ['-b', bundlePath, '-f', outputPath, '-i']);
+            yield exec.exec(toolPath, ['-b', bundlePath, '-f', outputPath, '-i', '-o']);
         }
         catch (error) {
             throw error;

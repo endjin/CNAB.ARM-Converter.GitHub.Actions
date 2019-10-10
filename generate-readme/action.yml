@@ -1,5 +1,5 @@
 name: 'Generate readme'
-description: 'Generates readme with 'Deploy to Azure' button and bundle parameters'
+description: 'Generates readme with "Deploy to Azure" button and bundle parameters'
 inputs:
   bundle_metadata_path:
     description: 'Path to the bundle metadata file'

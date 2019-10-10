@@ -1,0 +1,18 @@
+name: 'Generate readme'
+description: 'Generates readme with 'Deploy to Azure' button and bundle parameters'
+inputs:
+  bundle_metadata_path:
+    description: 'Path to the bundle metadata file'
+    required: true
+  instructions_path:
+    description: 'Path to the instructions markdown file'
+    required: true
+  template_uri:
+    description: 'Path to the ARM template file'
+    required: true
+  output_path:
+    description: 'Path for output readme markdown file'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

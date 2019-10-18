@@ -36,7 +36,7 @@ export class Generator {
 
     private generateDeployToAzureButton(): string {
         let portalUri = "https://portal.azure.com/#create/Microsoft.Template/uri/"
-        let buttonImageUri = "http://azuredeploy.net/deploybutton.png"
+        let buttonImageUri = "https://raw.githubusercontent.com/endjin/CNAB.Quickstarts/master/images/Deploy-from-Azure.png"
         
         let deployUri = portalUri + encodeURIComponent(this.templateUri);
 

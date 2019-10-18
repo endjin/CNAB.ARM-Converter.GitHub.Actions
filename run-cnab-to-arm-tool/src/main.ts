@@ -21,13 +21,13 @@ export async function run() {
 
     switch (os) {
       case "Windows":
-        toolUrl = `https://github.com/endjin/CNAB.ARM-Converter/releases/download/${toolVersion}/cnab-arm-windows-amd64.exe`;
+        toolUrl = `https://github.com/endjin/CNAB.ARM-Converter/releases/download/${toolVersion}/cnabarmdriver-windows-amd64.exe`;
         break;
       case "MacOS":
-        toolUrl = `https://github.com/endjin/CNAB.ARM-Converter/releases/download/${toolVersion}/cnab-arm-darwin-amd64`;
+        toolUrl = `https://github.com/endjin/CNAB.ARM-Converter/releases/download/${toolVersion}/cnabarmdriver-darwin-amd64`;
         break;
       case "Linux":
-        toolUrl = `https://github.com/endjin/CNAB.ARM-Converter/releases/download/${toolVersion}/cnab-arm-linux-amd64`;
+        toolUrl = `https://github.com/endjin/CNAB.ARM-Converter/releases/download/${toolVersion}/cnabarmdriver-linux-amd64`;
         break;
       default:
         throw `Unknown OS: ${os}`
@@ -35,7 +35,7 @@ export async function run() {
 
     let toolPath = await tc.downloadTool(toolUrl);
     await exec.exec("chmod", ["+x", toolPath]);
-    await exec.exec(toolPath, ['-b', bundlePath, '-f', outputPath, '-i', '-o']);
+    await exec.exec(toolPath, ['generate', '-b', bundlePath, '-f', outputPath, '-i', '-o']);
 
   } catch (error) {
     throw error;

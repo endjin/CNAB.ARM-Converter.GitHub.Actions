@@ -4,7 +4,7 @@ inputs:
   tool_version:
     description: 'Version of tool to install'
     required: false
-    default: '0.15.0'
+    default: '0.16.0'
   bundle_path:
     description: 'Path to the CNAB to convert'
     required: false
@@ -13,6 +13,10 @@ inputs:
     description: 'Path for the ARM template output'
     required: false
     default: 'azuredeploy.json'
+  simplify:
+    description: 'Flag to set whether to simplify ARM template'
+    required: false
+    default: 'false'
 runs:
   using: 'node12'
   main: 'dist/index.js'

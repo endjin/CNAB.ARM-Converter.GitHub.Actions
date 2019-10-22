@@ -1245,6 +1245,7 @@ function run() {
             let toolVersion = core.getInput("tool_version");
             let bundlePath = core.getInput("bundle_path");
             let outputPath = core.getInput("output_path");
+            let simplify = core.getInput("simplify") == "true";
             let workspacePath = process.env.GITHUB_WORKSPACE;
             bundlePath = path.join(workspacePath, bundlePath);
             outputPath = path.join(workspacePath, outputPath);
@@ -1265,7 +1266,10 @@ function run() {
             }
             let toolPath = yield tc.downloadTool(toolUrl);
             yield exec.exec("chmod", ["+x", toolPath]);
-            yield exec.exec(toolPath, ['generate', '-b', bundlePath, '-f', outputPath, '-i', '-o']);
+            let execParams = ['generate', '-b', bundlePath, '-f', outputPath, '-i', '-o'];
+            if (simplify)
+                execParams = execParams.concat('-s');
+            yield exec.exec(toolPath, execParams);
         }
         catch (error) {
             throw error;

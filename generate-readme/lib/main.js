@@ -25,10 +25,11 @@ function run() {
             let bundleMetadataPath = core.getInput("bundle_metadata_path");
             let instructionsPath = core.getInput("instructions_path");
             let outputPath = core.getInput("output_path");
-            let templateUri = core.getInput("template_uri");
+            let simpleTemplateUri = core.getInput("simple_template_uri");
+            let advancedTemplateUri = core.getInput("advanced_template_uri");
             let bundleMetadata = JSON.parse(yield fs_1.promises.readFile(bundleMetadataPath, "utf8"));
             let instructions = yield fs_1.promises.readFile(instructionsPath, "utf8");
-            let generator = new generator_1.Generator(bundleMetadata, instructions, templateUri);
+            let generator = new generator_1.Generator(bundleMetadata, instructions, simpleTemplateUri, advancedTemplateUri);
             let readme = generator.generateReadme();
             yield fs_1.promises.writeFile(outputPath, readme);
         }

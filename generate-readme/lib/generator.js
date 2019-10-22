@@ -5,17 +5,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const json2md_1 = __importDefault(require("json2md"));
 class Generator {
-    constructor(bundleMetadata, instructions, templateUri) {
+    constructor(bundleMetadata, instructions, simpleTemplateUri, advancedTemplateUri) {
         this.bundleMetadata = bundleMetadata;
         this.instructions = instructions;
-        this.templateUri = templateUri;
+        this.simpleTemplateUri = simpleTemplateUri;
+        this.advancedTemplateUri = advancedTemplateUri;
     }
     generateReadme() {
         let readme = "";
         readme += this.generateTitle();
         readme += this.insertNewLine();
-        readme += this.generateDeployToAzureButton();
+        readme += "## Simple deployment";
         readme += this.insertNewLine();
+        readme += this.generateDeployToAzureButton(this.simpleTemplateUri);
+        readme += this.insertNewLine();
+        readme += "## Advanced deployment";
+        readme += this.insertNewLine();
+        readme += this.generateDeployToAzureButton(this.advancedTemplateUri);
         readme += this.insertNewLine();
         readme += this.generateInstructions();
         readme += this.insertNewLine();
@@ -27,10 +33,10 @@ class Generator {
         let title = this.bundleMetadata.description || this.bundleMetadata.name;
         return json2md_1.default({ h1: title });
     }
-    generateDeployToAzureButton() {
+    generateDeployToAzureButton(templateUri) {
         let portalUri = "https://portal.azure.com/#create/Microsoft.Template/uri/";
         let buttonImageUri = "https://raw.githubusercontent.com/endjin/CNAB.Quickstarts/master/images/Deploy-from-Azure.png";
-        let deployUri = portalUri + encodeURIComponent(this.templateUri);
+        let deployUri = portalUri + encodeURIComponent(templateUri);
         return `<a href=\"${deployUri}\" target=\"_blank\"><img src=\"${buttonImageUri}\"/></a>`;
     }
     generateInstructions() {

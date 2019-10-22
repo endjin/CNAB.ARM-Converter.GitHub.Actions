@@ -4,12 +4,14 @@ import { default as json2md } from 'json2md';
 export class Generator {
     private readonly bundleMetadata: Bundle;
     private readonly instructions: string;
-    private readonly templateUri: string;
+    private readonly simpleTemplateUri: string;
+    private readonly advancedTemplateUri: string;
 
-    constructor(bundleMetadata: Bundle, instructions: string, templateUri: string) {
+    constructor(bundleMetadata: Bundle, instructions: string, simpleTemplateUri: string, advancedTemplateUri: string) {
         this.bundleMetadata = bundleMetadata;
         this.instructions = instructions;
-        this.templateUri = templateUri;
+        this.simpleTemplateUri = simpleTemplateUri;
+        this.advancedTemplateUri = advancedTemplateUri;
     }
     
     generateReadme() : string {
@@ -17,8 +19,13 @@ export class Generator {
 
         readme += this.generateTitle();
         readme += this.insertNewLine();
-        readme += this.generateDeployToAzureButton();
+        readme += "## Simple deployment";
         readme += this.insertNewLine();
+        readme += this.generateDeployToAzureButton(this.simpleTemplateUri);
+        readme += this.insertNewLine();
+        readme += "## Advanced deployment";
+        readme += this.insertNewLine();
+        readme += this.generateDeployToAzureButton(this.advancedTemplateUri);
         readme += this.insertNewLine();
         readme += this.generateInstructions();
         readme += this.insertNewLine();
@@ -34,11 +41,11 @@ export class Generator {
         return json2md({ h1: title });
     }
 
-    private generateDeployToAzureButton(): string {
+    private generateDeployToAzureButton(templateUri): string {
         let portalUri = "https://portal.azure.com/#create/Microsoft.Template/uri/"
         let buttonImageUri = "https://raw.githubusercontent.com/endjin/CNAB.Quickstarts/master/images/Deploy-from-Azure.png"
         
-        let deployUri = portalUri + encodeURIComponent(this.templateUri);
+        let deployUri = portalUri + encodeURIComponent(templateUri);
 
         return `<a href=\"${deployUri}\" target=\"_blank\"><img src=\"${buttonImageUri}\"/></a>`;
     }

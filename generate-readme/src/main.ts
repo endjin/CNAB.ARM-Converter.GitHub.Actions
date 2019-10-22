@@ -10,12 +10,13 @@ export async function run() {
     let bundleMetadataPath = core.getInput("bundle_metadata_path");
     let instructionsPath = core.getInput("instructions_path");
     let outputPath = core.getInput("output_path");
-    let templateUri = core.getInput("template_uri");
+    let simpleTemplateUri = core.getInput("simple_template_uri");
+    let advancedTemplateUri = core.getInput("advanced_template_uri");
 
     let bundleMetadata : Bundle =  JSON.parse(await fs.readFile(bundleMetadataPath, "utf8"));
     let instructions = await fs.readFile(instructionsPath, "utf8");
 
-    let generator = new Generator(bundleMetadata, instructions, templateUri);
+    let generator = new Generator(bundleMetadata, instructions, simpleTemplateUri, advancedTemplateUri);
 
     let readme = generator.generateReadme();
 

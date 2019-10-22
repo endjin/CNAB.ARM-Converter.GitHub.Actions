@@ -74,10 +74,11 @@ function run() {
             let bundleMetadataPath = core.getInput("bundle_metadata_path");
             let instructionsPath = core.getInput("instructions_path");
             let outputPath = core.getInput("output_path");
-            let templateUri = core.getInput("template_uri");
+            let simpleTemplateUri = core.getInput("simple_template_uri");
+            let advancedTemplateUri = core.getInput("advanced_template_uri");
             let bundleMetadata = JSON.parse(yield fs_1.promises.readFile(bundleMetadataPath, "utf8"));
             let instructions = yield fs_1.promises.readFile(instructionsPath, "utf8");
-            let generator = new generator_1.Generator(bundleMetadata, instructions, templateUri);
+            let generator = new generator_1.Generator(bundleMetadata, instructions, simpleTemplateUri, advancedTemplateUri);
             let readme = generator.generateReadme();
             yield fs_1.promises.writeFile(outputPath, readme);
         }
@@ -672,17 +673,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const json2md_1 = __importDefault(__webpack_require__(444));
 class Generator {
-    constructor(bundleMetadata, instructions, templateUri) {
+    constructor(bundleMetadata, instructions, simpleTemplateUri, advancedTemplateUri) {
         this.bundleMetadata = bundleMetadata;
         this.instructions = instructions;
-        this.templateUri = templateUri;
+        this.simpleTemplateUri = simpleTemplateUri;
+        this.advancedTemplateUri = advancedTemplateUri;
     }
     generateReadme() {
         let readme = "";
         readme += this.generateTitle();
         readme += this.insertNewLine();
-        readme += this.generateDeployToAzureButton();
+        readme += "## Simple deployment";
         readme += this.insertNewLine();
+        readme += this.generateDeployToAzureButton(this.simpleTemplateUri);
+        readme += this.insertNewLine();
+        readme += "## Advanced deployment";
+        readme += this.insertNewLine();
+        readme += this.generateDeployToAzureButton(this.advancedTemplateUri);
         readme += this.insertNewLine();
         readme += this.generateInstructions();
         readme += this.insertNewLine();
@@ -694,10 +701,10 @@ class Generator {
         let title = this.bundleMetadata.description || this.bundleMetadata.name;
         return json2md_1.default({ h1: title });
     }
-    generateDeployToAzureButton() {
+    generateDeployToAzureButton(templateUri) {
         let portalUri = "https://portal.azure.com/#create/Microsoft.Template/uri/";
         let buttonImageUri = "https://raw.githubusercontent.com/endjin/CNAB.Quickstarts/master/images/Deploy-from-Azure.png";
-        let deployUri = portalUri + encodeURIComponent(this.templateUri);
+        let deployUri = portalUri + encodeURIComponent(templateUri);
         return `<a href=\"${deployUri}\" target=\"_blank\"><img src=\"${buttonImageUri}\"/></a>`;
     }
     generateInstructions() {

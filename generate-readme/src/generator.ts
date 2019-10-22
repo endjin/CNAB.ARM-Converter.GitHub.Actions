@@ -25,6 +25,7 @@ export class Generator {
         readme += this.insertNewLine();
         readme += "## Advanced deployment";
         readme += this.insertNewLine();
+        readme += this.insertNewLine();
         readme += this.generateDeployToAzureButton(this.advancedTemplateUri);
         readme += this.insertNewLine();
         readme += this.generateInstructions();

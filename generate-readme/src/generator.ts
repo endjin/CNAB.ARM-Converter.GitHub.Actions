@@ -19,18 +19,16 @@ export class Generator {
 
         readme += this.generateTitle();
         readme += this.insertNewLine();
-        readme += "## Simple deployment";
+        readme += json2md({ h2: "Simple deployment" });
         readme += this.insertNewLine();
         readme += this.generateDeployToAzureButton(this.simpleTemplateUri);
-        readme += this.insertNewLine();
-        readme += "## Advanced deployment";
-        readme += this.insertNewLine();
+        readme += this.insertNewLine(2);
+        readme += json2md({ h2: "Advanced deployment" });
         readme += this.insertNewLine();
         readme += this.generateDeployToAzureButton(this.advancedTemplateUri);
-        readme += this.insertNewLine();
+        readme += this.insertNewLine(2);
         readme += this.generateInstructions();
-        readme += this.insertNewLine();
-        readme += this.insertNewLine();
+        readme += this.insertNewLine(2);
         readme += this.generateParametersAndCredentials();
 
         return readme;
@@ -83,7 +81,7 @@ export class Generator {
         ])
     }
 
-    private insertNewLine(): string {
-        return "\n";
+    private insertNewLine(count: number = 1): string {
+        return "\n".repeat(count);
     }
 }

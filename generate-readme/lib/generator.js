@@ -15,18 +15,16 @@ class Generator {
         let readme = "";
         readme += this.generateTitle();
         readme += this.insertNewLine();
-        readme += "## Simple deployment";
+        readme += json2md_1.default({ h2: "Simple deployment" });
         readme += this.insertNewLine();
         readme += this.generateDeployToAzureButton(this.simpleTemplateUri);
-        readme += this.insertNewLine();
-        readme += "## Advanced deployment";
-        readme += this.insertNewLine();
+        readme += this.insertNewLine(2);
+        readme += json2md_1.default({ h2: "Advanced deployment" });
         readme += this.insertNewLine();
         readme += this.generateDeployToAzureButton(this.advancedTemplateUri);
-        readme += this.insertNewLine();
+        readme += this.insertNewLine(2);
         readme += this.generateInstructions();
-        readme += this.insertNewLine();
-        readme += this.insertNewLine();
+        readme += this.insertNewLine(2);
         readme += this.generateParametersAndCredentials();
         return readme;
     }
@@ -66,8 +64,8 @@ class Generator {
             }
         ]);
     }
-    insertNewLine() {
-        return "\n";
+    insertNewLine(count = 1) {
+        return "\n".repeat(count);
     }
 }
 exports.Generator = Generator;

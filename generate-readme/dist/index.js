@@ -169,7 +169,7 @@ class Generator {
             {
                 table: {
                     headers: ["Name", "Description"],
-                    rows: parametersAndCredentials.map(x => { return { Name: x[0], Description: x[1].description }; })
+                    rows: parametersAndCredentials.map(x => { return { Name: x[0], Description: x[1].description || "" }; })
                 }
             }
         ]);

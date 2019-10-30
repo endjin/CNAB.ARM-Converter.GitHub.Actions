@@ -34,7 +34,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(66);
+/******/ 		return __webpack_require__(198);
 /******/ 	};
 /******/
 /******/ 	// run startup
@@ -43,7 +43,14 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
-/***/ 66:
+/***/ 87:
+/***/ (function(module) {
+
+module.exports = require("os");
+
+/***/ }),
+
+/***/ 198:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
@@ -65,8 +72,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(668));
-const generator_1 = __webpack_require__(669);
+const core = __importStar(__webpack_require__(470));
+const generator_1 = __webpack_require__(211);
 const fs_1 = __webpack_require__(747);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -76,10 +83,14 @@ function run() {
             let outputPath = core.getInput("output_path");
             let simpleTemplateUri = core.getInput("simple_template_uri");
             let advancedTemplateUri = core.getInput("advanced_template_uri");
+            core.info(`Reading and parsing bundle metadata from: ${bundleMetadataPath}`);
             let bundleMetadata = JSON.parse(yield fs_1.promises.readFile(bundleMetadataPath, "utf8"));
+            core.info(`Reading instructions markdown from: ${instructionsPath}`);
             let instructions = yield fs_1.promises.readFile(instructionsPath, "utf8");
+            core.info("Generating readme...");
             let generator = new generator_1.Generator(bundleMetadata, instructions, simpleTemplateUri, advancedTemplateUri);
             let readme = generator.generateReadme();
+            core.info(`Readme generating. Writing out to: ${outputPath}`);
             yield fs_1.promises.writeFile(outputPath, readme);
         }
         catch (error) {
@@ -93,113 +104,86 @@ run().catch(error => core.setFailed(error.message));
 
 /***/ }),
 
-/***/ 87:
-/***/ (function(module) {
-
-module.exports = require("os");
-
-/***/ }),
-
-/***/ 160:
-/***/ (function(module) {
-
-"use strict";
-
-
-/**
- * indento
- * Indents the input string.
- *
- * @name indento
- * @function
- * @param {String} input The input string.
- * @param {Number} width The indent width.
- * @param {String} char The character to use for indentation (default: `" "`).
- * @return {String} The indented string.
- */
-function indento(input, width, char) {
-  char = typeof char !== "string" ? " " : char;
-  return String(input).replace(/^/gm, char.repeat(width));
-}
-
-module.exports = indento;
-
-/***/ }),
-
-/***/ 364:
+/***/ 211:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const os = __webpack_require__(87);
-/**
- * Commands
- *
- * Command Format:
- *   ##[name key=value;key=value]message
- *
- * Examples:
- *   ##[warning]This is the user warning message
- *   ##[set-secret name=mypassword]definitelyNotAPassword!
- */
-function issueCommand(command, properties, message) {
-    const cmd = new Command(command, properties, message);
-    process.stdout.write(cmd.toString() + os.EOL);
-}
-exports.issueCommand = issueCommand;
-function issue(name, message = '') {
-    issueCommand(name, {}, message);
-}
-exports.issue = issue;
-const CMD_STRING = '::';
-class Command {
-    constructor(command, properties, message) {
-        if (!command) {
-            command = 'missing.command';
-        }
-        this.command = command;
-        this.properties = properties;
-        this.message = message;
+const json2md_1 = __importDefault(__webpack_require__(640));
+class Generator {
+    constructor(bundleMetadata, instructions, simpleTemplateUri, advancedTemplateUri) {
+        this.bundleMetadata = bundleMetadata;
+        this.instructions = instructions;
+        this.simpleTemplateUri = simpleTemplateUri;
+        this.advancedTemplateUri = advancedTemplateUri;
     }
-    toString() {
-        let cmdStr = CMD_STRING + this.command;
-        if (this.properties && Object.keys(this.properties).length > 0) {
-            cmdStr += ' ';
-            for (const key in this.properties) {
-                if (this.properties.hasOwnProperty(key)) {
-                    const val = this.properties[key];
-                    if (val) {
-                        // safely append the val - avoid blowing up when attempting to
-                        // call .replace() if message is not a string for some reason
-                        cmdStr += `${key}=${escape(`${val || ''}`)},`;
-                    }
+    generateReadme() {
+        let readme = "";
+        readme += this.generateTitle();
+        readme += this.insertNewLine();
+        readme += json2md_1.default({ h2: "Simple deployment" });
+        readme += this.insertNewLine();
+        readme += this.generateDeployToAzureButton(this.simpleTemplateUri);
+        readme += this.insertNewLine(2);
+        readme += json2md_1.default({ h2: "Advanced deployment" });
+        readme += this.insertNewLine();
+        readme += this.generateDeployToAzureButton(this.advancedTemplateUri);
+        readme += this.insertNewLine(2);
+        readme += this.generateInstructions();
+        readme += this.insertNewLine(2);
+        readme += this.generateParametersAndCredentials();
+        return readme;
+    }
+    generateTitle() {
+        let title = this.bundleMetadata.description || this.bundleMetadata.name;
+        return json2md_1.default({ h1: title });
+    }
+    generateDeployToAzureButton(templateUri) {
+        let portalUri = "https://portal.azure.com/#create/Microsoft.Template/uri/";
+        let buttonImageUri = "https://raw.githubusercontent.com/endjin/CNAB.Quickstarts/master/images/Deploy-from-Azure.png";
+        let deployUri = portalUri + encodeURIComponent(templateUri);
+        return `<a href=\"${deployUri}\" target=\"_blank\"><img src=\"${buttonImageUri}\"/></a>`;
+    }
+    generateInstructions() {
+        return this.instructions;
+    }
+    generateParametersAndCredentials() {
+        let parametersAndCredentials = [];
+        if (this.bundleMetadata.parameters) {
+            let parameters = Object.entries(this.bundleMetadata.parameters);
+            parametersAndCredentials = parametersAndCredentials.concat(parameters);
+        }
+        if (this.bundleMetadata.credentials) {
+            let credentials = Object.entries(this.bundleMetadata.credentials);
+            parametersAndCredentials = parametersAndCredentials.concat(credentials);
+        }
+        parametersAndCredentials = parametersAndCredentials.sort((a, b) => (a[0] > b[0]) ? 1 : -1);
+        return json2md_1.default([
+            {
+                h2: "Parameters and Credentials"
+            },
+            {
+                table: {
+                    headers: ["Name", "Description"],
+                    rows: parametersAndCredentials.map(x => { return { Name: x[0], Description: x[1].description }; })
                 }
             }
-        }
-        cmdStr += CMD_STRING;
-        // safely append the message - avoid blowing up when attempting to
-        // call .replace() if message is not a string for some reason
-        const message = `${this.message || ''}`;
-        cmdStr += escapeData(message);
-        return cmdStr;
+        ]);
+    }
+    insertNewLine(count = 1) {
+        return "\n".repeat(count);
     }
 }
-function escapeData(s) {
-    return s.replace(/\r/g, '%0D').replace(/\n/g, '%0A');
-}
-function escape(s) {
-    return s
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A')
-        .replace(/]/g, '%5D')
-        .replace(/;/g, '%3B');
-}
-//# sourceMappingURL=command.js.map
+exports.Generator = Generator;
+
 
 /***/ }),
 
-/***/ 441:
+/***/ 222:
 /***/ (function(module) {
 
 "use strict";
@@ -347,143 +331,80 @@ converters.link = function (input, json2md) {
 
 /***/ }),
 
-/***/ 444:
-/***/ (function(module, __unusedexports, __webpack_require__) {
+/***/ 431:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
 
-
-var converters = __webpack_require__(441),
-    indento = __webpack_require__(160);
-
+Object.defineProperty(exports, "__esModule", { value: true });
+const os = __webpack_require__(87);
 /**
- * json2md
- * Converts a JSON input to markdown.
+ * Commands
  *
- * **Supported elements**
+ * Command Format:
+ *   ##[name key=value;key=value]message
  *
- * | Type         | Element            | Data                                                                                                                     | Example                                                                                                                                          |
- * |--------------|--------------------|--------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
- * | `h1`         | Heading 1          | The heading text as string.                                                                                              | `{ h1: "heading 1" }`                                                                                                                            |
- * | `h2`         | Heading 2          | The heading text as string.                                                                                              | `{ h2: "heading 2" }`                                                                                                                            |
- * | `h3`         | Heading 3          | The heading text as string.                                                                                              | `{ h3: "heading 3" }`                                                                                                                            |
- * | `h4`         | Heading 4          | The heading text as string.                                                                                              | `{ h4: "heading 4" }`                                                                                                                            |
- * | `h5`         | Heading 5          | The heading text as string.                                                                                              | `{ h5: "heading 5" }`                                                                                                                            |
- * | `h6`         | Heading 6          | The heading text as string.                                                                                              | `{ h6: "heading 6" }`                                                                                                                            |
- * | `p`          | Paragraphs         | The paragraph text as string or array (multiple paragraphs).                                                             | `{ p: "Hello World"}` or multiple paragraphs: `{ p: ["Hello", "World"] }`                                                                        |
- * | `blockquote` | Blockquote         | The blockquote as string or array (multiple blockquotes)                                                                 | `{ blockquote: "Hello World"}` or multiple blockquotes: `{ blockquote: ["Hello", "World"] }`                                                     |
- * | `img`        | Image              | An object or an array of objects containing the `title` and `source` fields.                                             | `{ img: { title: "My image title", source: "http://example.com/image.png" } }`                                                                   |
- * | `ul`         | Unordered list     | An array of strings representing the items.                                                                              | `{ ul: ["item 1", "item 2"] }`                                                                                                                   |
- * | `ol`         | Ordered list       | An array of strings representing the items.                                                                              | `{ ol: ["item 1", "item 2"] }`                                                                                                                   |
- * | `code`       | Code block element | An object containing the `language` (`String`) and `content` (`Array` or `String`)  fields.                              | `{ code: { "language": "html", "content": "<script src='dummy.js'></script>" } }`                                                                |
- * | `table`      | Table              | An object containing the `headers` (`Array` of `String`s) and `rows` (`Array` of `Array`s or `Object`s).                 | `{ table: { headers: ["a", "b"], rows: [{ a: "col1", b: "col2" }] } }` or `{ table: { headers: ["a", "b"], rows: [["col1", "col2"]] } }`         |
- * | `link`       | Link               | An object containing the `title` and the `source` fields.                                                                | `{ title: 'hello', source: 'https://ionicabizau.net' }
- *
- *
- * You can extend the `json2md.converters` object to support your custom types.
- *
- * ```js
- * json2md.converters.sayHello = function (input, json2md) {
- *    return "Hello " + input + "!"
- * }
- * ```
- *
- * Then you can use it:
- *
- * ```js
- * json2md({ sayHello: "World" })
- * // => "Hello World!"
- * ```
- *
- * @name json2md
- * @function
- * @param {Array|Object|String} data The input JSON data.
- * @param {String} prefix A snippet to add before each line.
- * @return {String} The generated markdown result.
+ * Examples:
+ *   ##[warning]This is the user warning message
+ *   ##[set-secret name=mypassword]definitelyNotAPassword!
  */
-function json2md(data, prefix, _type) {
-    prefix = prefix || "";
-    if (typeof data === "string" || typeof data === "number") {
-        return indento(data, 1, prefix);
+function issueCommand(command, properties, message) {
+    const cmd = new Command(command, properties, message);
+    process.stdout.write(cmd.toString() + os.EOL);
+}
+exports.issueCommand = issueCommand;
+function issue(name, message = '') {
+    issueCommand(name, {}, message);
+}
+exports.issue = issue;
+const CMD_STRING = '::';
+class Command {
+    constructor(command, properties, message) {
+        if (!command) {
+            command = 'missing.command';
+        }
+        this.command = command;
+        this.properties = properties;
+        this.message = message;
     }
-
-    var content = [];
-
-    // Handle arrays
-    if (Array.isArray(data)) {
-        for (var i = 0; i < data.length; ++i) {
-            content.push(indento(json2md(data[i], "", _type), 1, prefix));
+    toString() {
+        let cmdStr = CMD_STRING + this.command;
+        if (this.properties && Object.keys(this.properties).length > 0) {
+            cmdStr += ' ';
+            for (const key in this.properties) {
+                if (this.properties.hasOwnProperty(key)) {
+                    const val = this.properties[key];
+                    if (val) {
+                        // safely append the val - avoid blowing up when attempting to
+                        // call .replace() if message is not a string for some reason
+                        cmdStr += `${key}=${escape(`${val || ''}`)},`;
+                    }
+                }
+            }
         }
-        return content.join("\n");
-    } else {
-        var type = Object.keys(data)[0],
-            func = converters[_type || type];
-
-        if (typeof func === "function") {
-            return indento(func(_type ? data : data[type], json2md), 1, prefix) + "\n";
-        }
-        throw new Error("There is no such converter: " + type);
+        cmdStr += CMD_STRING;
+        // safely append the message - avoid blowing up when attempting to
+        // call .replace() if message is not a string for some reason
+        const message = `${this.message || ''}`;
+        cmdStr += escapeData(message);
+        return cmdStr;
     }
 }
-
-/**
- * @param {Array|Object|String} data The input JSON data.
- * @param {String} prefix A snippet to add before each line.
- * @return {Promise.<String, Error>} The generated markdown result.
- */
-json2md.async = function (data, prefix, _type) {
-    return Promise.resolve().then(function () {
-        prefix = prefix || "";
-        if (typeof data === "string" || typeof data === "number") {
-            return indento(data, 1, prefix);
-        }
-
-        var content = [];
-
-        // Handle arrays
-        if (Array.isArray(data)) {
-            var promises = data.map(function (d, index) {
-                return Promise.resolve().then(function () {
-                    return json2md.async(d, "", _type);
-                }).then(function (result) {
-                    return indento(result, 1, prefix);
-                }).then(function (result) {
-                    content[index] = result;
-                });
-            });
-            return Promise.all(promises).then(function () {
-                return content.join("\n");
-            });
-        } else {
-            var type = Object.keys(data)[0],
-                func = converters[_type || type];
-
-            if (typeof func === "function") {
-                return Promise.resolve().then(function () {
-                    return func(_type ? data : data[type], json2md);
-                }).then(function (result) {
-                    return indento(result, 1, prefix) + "\n";
-                });
-            }
-            throw new Error("There is no such converter: " + type);
-        }
-    });
-};
-
-json2md.converters = converters;
-
-module.exports = json2md;
+function escapeData(s) {
+    return s.replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+}
+function escape(s) {
+    return s
+        .replace(/\r/g, '%0D')
+        .replace(/\n/g, '%0A')
+        .replace(/]/g, '%5D')
+        .replace(/;/g, '%3B');
+}
+//# sourceMappingURL=command.js.map
 
 /***/ }),
 
-/***/ 622:
-/***/ (function(module) {
-
-module.exports = require("path");
-
-/***/ }),
-
-/***/ 668:
+/***/ 470:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
@@ -498,7 +419,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const command_1 = __webpack_require__(364);
+const command_1 = __webpack_require__(431);
 const os = __webpack_require__(87);
 const path = __webpack_require__(622);
 /**
@@ -662,82 +583,165 @@ exports.group = group;
 
 /***/ }),
 
-/***/ 669:
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
+/***/ 479:
+/***/ (function(module) {
 
 "use strict";
 
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const json2md_1 = __importDefault(__webpack_require__(444));
-class Generator {
-    constructor(bundleMetadata, instructions, simpleTemplateUri, advancedTemplateUri) {
-        this.bundleMetadata = bundleMetadata;
-        this.instructions = instructions;
-        this.simpleTemplateUri = simpleTemplateUri;
-        this.advancedTemplateUri = advancedTemplateUri;
+
+/**
+ * indento
+ * Indents the input string.
+ *
+ * @name indento
+ * @function
+ * @param {String} input The input string.
+ * @param {Number} width The indent width.
+ * @param {String} char The character to use for indentation (default: `" "`).
+ * @return {String} The indented string.
+ */
+function indento(input, width, char) {
+  char = typeof char !== "string" ? " " : char;
+  return String(input).replace(/^/gm, char.repeat(width));
+}
+
+module.exports = indento;
+
+/***/ }),
+
+/***/ 622:
+/***/ (function(module) {
+
+module.exports = require("path");
+
+/***/ }),
+
+/***/ 640:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+"use strict";
+
+
+var converters = __webpack_require__(222),
+    indento = __webpack_require__(479);
+
+/**
+ * json2md
+ * Converts a JSON input to markdown.
+ *
+ * **Supported elements**
+ *
+ * | Type         | Element            | Data                                                                                                                     | Example                                                                                                                                          |
+ * |--------------|--------------------|--------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+ * | `h1`         | Heading 1          | The heading text as string.                                                                                              | `{ h1: "heading 1" }`                                                                                                                            |
+ * | `h2`         | Heading 2          | The heading text as string.                                                                                              | `{ h2: "heading 2" }`                                                                                                                            |
+ * | `h3`         | Heading 3          | The heading text as string.                                                                                              | `{ h3: "heading 3" }`                                                                                                                            |
+ * | `h4`         | Heading 4          | The heading text as string.                                                                                              | `{ h4: "heading 4" }`                                                                                                                            |
+ * | `h5`         | Heading 5          | The heading text as string.                                                                                              | `{ h5: "heading 5" }`                                                                                                                            |
+ * | `h6`         | Heading 6          | The heading text as string.                                                                                              | `{ h6: "heading 6" }`                                                                                                                            |
+ * | `p`          | Paragraphs         | The paragraph text as string or array (multiple paragraphs).                                                             | `{ p: "Hello World"}` or multiple paragraphs: `{ p: ["Hello", "World"] }`                                                                        |
+ * | `blockquote` | Blockquote         | The blockquote as string or array (multiple blockquotes)                                                                 | `{ blockquote: "Hello World"}` or multiple blockquotes: `{ blockquote: ["Hello", "World"] }`                                                     |
+ * | `img`        | Image              | An object or an array of objects containing the `title` and `source` fields.                                             | `{ img: { title: "My image title", source: "http://example.com/image.png" } }`                                                                   |
+ * | `ul`         | Unordered list     | An array of strings representing the items.                                                                              | `{ ul: ["item 1", "item 2"] }`                                                                                                                   |
+ * | `ol`         | Ordered list       | An array of strings representing the items.                                                                              | `{ ol: ["item 1", "item 2"] }`                                                                                                                   |
+ * | `code`       | Code block element | An object containing the `language` (`String`) and `content` (`Array` or `String`)  fields.                              | `{ code: { "language": "html", "content": "<script src='dummy.js'></script>" } }`                                                                |
+ * | `table`      | Table              | An object containing the `headers` (`Array` of `String`s) and `rows` (`Array` of `Array`s or `Object`s).                 | `{ table: { headers: ["a", "b"], rows: [{ a: "col1", b: "col2" }] } }` or `{ table: { headers: ["a", "b"], rows: [["col1", "col2"]] } }`         |
+ * | `link`       | Link               | An object containing the `title` and the `source` fields.                                                                | `{ title: 'hello', source: 'https://ionicabizau.net' }
+ *
+ *
+ * You can extend the `json2md.converters` object to support your custom types.
+ *
+ * ```js
+ * json2md.converters.sayHello = function (input, json2md) {
+ *    return "Hello " + input + "!"
+ * }
+ * ```
+ *
+ * Then you can use it:
+ *
+ * ```js
+ * json2md({ sayHello: "World" })
+ * // => "Hello World!"
+ * ```
+ *
+ * @name json2md
+ * @function
+ * @param {Array|Object|String} data The input JSON data.
+ * @param {String} prefix A snippet to add before each line.
+ * @return {String} The generated markdown result.
+ */
+function json2md(data, prefix, _type) {
+    prefix = prefix || "";
+    if (typeof data === "string" || typeof data === "number") {
+        return indento(data, 1, prefix);
     }
-    generateReadme() {
-        let readme = "";
-        readme += this.generateTitle();
-        readme += this.insertNewLine();
-        readme += json2md_1.default({ h2: "Simple deployment" });
-        readme += this.insertNewLine();
-        readme += this.generateDeployToAzureButton(this.simpleTemplateUri);
-        readme += this.insertNewLine(2);
-        readme += json2md_1.default({ h2: "Advanced deployment" });
-        readme += this.insertNewLine();
-        readme += this.generateDeployToAzureButton(this.advancedTemplateUri);
-        readme += this.insertNewLine(2);
-        readme += this.generateInstructions();
-        readme += this.insertNewLine(2);
-        readme += this.generateParametersAndCredentials();
-        return readme;
-    }
-    generateTitle() {
-        let title = this.bundleMetadata.description || this.bundleMetadata.name;
-        return json2md_1.default({ h1: title });
-    }
-    generateDeployToAzureButton(templateUri) {
-        let portalUri = "https://portal.azure.com/#create/Microsoft.Template/uri/";
-        let buttonImageUri = "https://raw.githubusercontent.com/endjin/CNAB.Quickstarts/master/images/Deploy-from-Azure.png";
-        let deployUri = portalUri + encodeURIComponent(templateUri);
-        return `<a href=\"${deployUri}\" target=\"_blank\"><img src=\"${buttonImageUri}\"/></a>`;
-    }
-    generateInstructions() {
-        return this.instructions;
-    }
-    generateParametersAndCredentials() {
-        let parametersAndCredentials = [];
-        if (this.bundleMetadata.parameters) {
-            let parameters = Object.entries(this.bundleMetadata.parameters);
-            parametersAndCredentials = parametersAndCredentials.concat(parameters);
+
+    var content = [];
+
+    // Handle arrays
+    if (Array.isArray(data)) {
+        for (var i = 0; i < data.length; ++i) {
+            content.push(indento(json2md(data[i], "", _type), 1, prefix));
         }
-        if (this.bundleMetadata.credentials) {
-            let credentials = Object.entries(this.bundleMetadata.credentials);
-            parametersAndCredentials = parametersAndCredentials.concat(credentials);
+        return content.join("\n");
+    } else {
+        var type = Object.keys(data)[0],
+            func = converters[_type || type];
+
+        if (typeof func === "function") {
+            return indento(func(_type ? data : data[type], json2md), 1, prefix) + "\n";
         }
-        parametersAndCredentials = parametersAndCredentials.sort((a, b) => (a[0] > b[0]) ? 1 : -1);
-        return json2md_1.default([
-            {
-                h2: "Parameters and Credentials"
-            },
-            {
-                table: {
-                    headers: ["Name", "Description"],
-                    rows: parametersAndCredentials.map(x => { return { Name: x[0], Description: x[1].description }; })
-                }
-            }
-        ]);
-    }
-    insertNewLine(count = 1) {
-        return "\n".repeat(count);
+        throw new Error("There is no such converter: " + type);
     }
 }
-exports.Generator = Generator;
 
+/**
+ * @param {Array|Object|String} data The input JSON data.
+ * @param {String} prefix A snippet to add before each line.
+ * @return {Promise.<String, Error>} The generated markdown result.
+ */
+json2md.async = function (data, prefix, _type) {
+    return Promise.resolve().then(function () {
+        prefix = prefix || "";
+        if (typeof data === "string" || typeof data === "number") {
+            return indento(data, 1, prefix);
+        }
+
+        var content = [];
+
+        // Handle arrays
+        if (Array.isArray(data)) {
+            var promises = data.map(function (d, index) {
+                return Promise.resolve().then(function () {
+                    return json2md.async(d, "", _type);
+                }).then(function (result) {
+                    return indento(result, 1, prefix);
+                }).then(function (result) {
+                    content[index] = result;
+                });
+            });
+            return Promise.all(promises).then(function () {
+                return content.join("\n");
+            });
+        } else {
+            var type = Object.keys(data)[0],
+                func = converters[_type || type];
+
+            if (typeof func === "function") {
+                return Promise.resolve().then(function () {
+                    return func(_type ? data : data[type], json2md);
+                }).then(function (result) {
+                    return indento(result, 1, prefix) + "\n";
+                });
+            }
+            throw new Error("There is no such converter: " + type);
+        }
+    });
+};
+
+json2md.converters = converters;
+
+module.exports = json2md;
 
 /***/ }),
 

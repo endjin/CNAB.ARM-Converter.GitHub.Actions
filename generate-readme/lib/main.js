@@ -27,10 +27,14 @@ function run() {
             let outputPath = core.getInput("output_path");
             let simpleTemplateUri = core.getInput("simple_template_uri");
             let advancedTemplateUri = core.getInput("advanced_template_uri");
+            core.info(`Reading and parsing bundle metadata from: ${bundleMetadataPath}`);
             let bundleMetadata = JSON.parse(yield fs_1.promises.readFile(bundleMetadataPath, "utf8"));
+            core.info(`Reading instructions markdown from: ${instructionsPath}`);
             let instructions = yield fs_1.promises.readFile(instructionsPath, "utf8");
+            core.info("Generating readme...");
             let generator = new generator_1.Generator(bundleMetadata, instructions, simpleTemplateUri, advancedTemplateUri);
             let readme = generator.generateReadme();
+            core.info(`Readme generating. Writing out to: ${outputPath}`);
             yield fs_1.promises.writeFile(outputPath, readme);
         }
         catch (error) {

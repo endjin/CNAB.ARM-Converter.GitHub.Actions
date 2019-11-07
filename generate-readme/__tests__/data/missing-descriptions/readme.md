@@ -12,11 +12,11 @@ TODO: Write instructions
 
 ## Parameters and Credentials
 
- | Name | Description | 
- | --- | --- | 
- | airflow_name | 
-host | 
-ingress_class | 
-kubeconfig | 
-namespace | 
-porter-debug | Print debug information from Porter when executing the bundle | 
+ | Name | Description | Default | Required | 
+ | --- | --- | --- | --- | 
+ | airflow_name |  |  | No
+host |  |  | Yes
+ingress_class |  |  | No
+kubeconfig |  |  | Yes
+namespace |  |  | No
+porter-debug | Print debug information from Porter when executing the bundle |  | No | 

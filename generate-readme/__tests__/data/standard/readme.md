@@ -22,15 +22,15 @@ Full details can be found [here](https://docs.microsoft.com/en-us/sql/linux/sql-
 
 ## Parameters and Credentials
 
- | Name | Description | 
- | --- | --- | 
- | aks_cluster_name | The name to use for the AKS Cluster
-aks_resource_group | The name of the resource group to create the AKS Cluster in
-azure_client_id | AAD Client ID for Azure account authentication - used for AKS Cluster SPN details and for authentication to azure to get KubeConfig - also if using ACI Driver  its used to authenticate to Azure for ACI creation to run bundle
-azure_client_secret | AAD Client Secret for Azure account authentication - used for AKS Cluster SPN details and for authentication to azure to get KubeConfig - also if using ACI Driver  its used to authenticate to Azure for ACI creation to run bundle
-azure_subscription_id | Azure Subscription Id used to set the subscription where the account has access to multiple subscriptions
-azure_tenant_id | Azure AAD Tenant Id for Azure account authentication - used to authenticate to Azure to get KubeConfig
-location | The Location to create the resources in
-porter-debug | Print debug information from Porter when executing the bundle
-sql_masterkeypassword | The Password for the SQL Server Master Key
-sql_sapassword | The Password for the sa user in SQL Server | 
+ | Name | Description | Default | Required | 
+ | --- | --- | --- | --- | 
+ | aks_cluster_name | The name to use for the AKS Cluster |  | No
+aks_resource_group | The name of the resource group to create the AKS Cluster in |  | No
+azure_client_id | AAD Client ID for Azure account authentication - used for AKS Cluster SPN details and for authentication to azure to get KubeConfig - also if using ACI Driver  its used to authenticate to Azure for ACI creation to run bundle |  | Yes
+azure_client_secret | AAD Client Secret for Azure account authentication - used for AKS Cluster SPN details and for authentication to azure to get KubeConfig - also if using ACI Driver  its used to authenticate to Azure for ACI creation to run bundle |  | Yes
+azure_subscription_id | Azure Subscription Id used to set the subscription where the account has access to multiple subscriptions |  | Yes
+azure_tenant_id | Azure AAD Tenant Id for Azure account authentication - used to authenticate to Azure to get KubeConfig |  | Yes
+location | The Location to create the resources in |  | Yes
+porter-debug | Print debug information from Porter when executing the bundle |  | No
+sql_masterkeypassword | The Password for the SQL Server Master Key |  | Yes
+sql_sapassword | The Password for the sa user in SQL Server |  | Yes | 

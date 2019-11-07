@@ -168,8 +168,15 @@ class Generator {
             },
             {
                 table: {
-                    headers: ["Name", "Description"],
-                    rows: parametersAndCredentials.map(x => { return { Name: x[0], Description: x[1].description || "" }; })
+                    headers: ["Name", "Description", "Default", "Required"],
+                    rows: parametersAndCredentials.map(x => {
+                        return {
+                            Name: x[0],
+                            Description: x[1].description || "",
+                            Default: x[1].default || "",
+                            Required: x[1].required ? "Yes" : "No"
+                        };
+                    })
                 }
             }
         ]);

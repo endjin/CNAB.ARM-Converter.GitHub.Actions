@@ -4,7 +4,7 @@ inputs:
   tool_version:
     description: 'Version of tool to install'
     required: false
-    default: '0.19.0'
+    default: '0.20.0'
   bundle_path:
     description: 'Path to the CNAB to convert'
     required: false

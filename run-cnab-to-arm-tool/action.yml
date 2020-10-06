@@ -9,6 +9,9 @@ inputs:
     description: 'Path to the CNAB to convert'
     required: false
     default: 'bundle.json'
+  bundle_tag:
+    description: 'The bundle tag for the CNAB to convert'
+    required: true
   output_path:
     description: 'Path for the ARM template output'
     required: false

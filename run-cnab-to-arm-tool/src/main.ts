@@ -9,6 +9,7 @@ export async function run() {
 
     let toolVersion = core.getInput("tool_version");
     let bundlePath = core.getInput("bundle_path");
+    let bundleTag = core.getInput("bundle_tag");
     let outputPath = core.getInput("output_path");
     let simplify = core.getInput("simplify") == "true";
 
@@ -37,7 +38,7 @@ export async function run() {
     let toolPath = await tc.downloadTool(toolUrl);
     await exec.exec("chmod", ["+x", toolPath]);
 
-    let execParams = ['generate', '-b', bundlePath, '-f', outputPath, '-i', '-o'];
+    let execParams = ['generate', '-b', bundlePath, '-t', bundleTag, '-f', outputPath, '-i', '-o'];
     if (simplify) execParams = execParams.concat('-s');
     await exec.exec(toolPath, execParams);
 
